@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TITU MOVIES - Premium Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --primary-yellow: #fbc02d;
+            --primary-red: #E50914;
+            --text-white: #ffffff;
+            --text-grey: #a0a0a0;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: 'Poppins', sans-serif;
+            padding-bottom: 90px;
+        }
+
+        /* Header */
+        nav {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 24px; font-weight: 800; letter-spacing: 1px; }
+        .logo .titu { color: var(--primary-yellow); }
+
+        /* Featured Movie Banner */
+        .hero-section {
+            padding: 0 20px;
+            margin-bottom: 30px;
+        }
+        .hero-card {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), 
+                        linear-gradient(45deg, #E50914, #333);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Movie Scroller */
+        .section-title { padding: 0 20px; font-size: 18px; font-weight: 600; margin-bottom: 15px; }
+        .movie-scroll {
+            display: flex;
+            overflow-x: auto;
+            padding: 0 20px;
+            gap: 20px;
+            scrollbar-width: none;
+        }
+        .movie-scroll::-webkit-scrollbar { display: none; }
+        .movie-card {
+            min-width: 140px;
+            height: 200px;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border: 1px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .movie-card:hover { transform: scale(1.05); border-color: var(--primary-yellow); }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            width: 90%;
+            margin: 0 5% 15px 5%;
+            height: 65px;
+            background: rgba(26, 26, 26, 0.85);
+            backdrop-filter: blur(15px); /* Frosted Glass Effect */
+            border-radius: 50px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .nav-item { color: var(--text-grey); font-size: 14px; font-weight: 400; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: var(--primary-red); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo"><span class="titu">TITU</span> MOVIES</div>
+        <div>👤</div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="hero-card">
+            <h2 style="margin: 0;">Featured Movie</h2>
+            <p style="color: #ddd; margin: 5px 0;">Trending this week</p>
+            <button style="background: var(--primary-red); border: none; padding: 10px 20px; color: white; border-radius: 8px; width: 100px; cursor: pointer;">Play</button>
+        </div>
+    </div>
+
+    <div class="section-title">New Releases</div>
+    <div class="movie-scroll">
+        <div class="movie-card">Movie 1</div>
+        <div class="movie-card">Movie 2</div>
+        <div class="movie-card">Movie 3</div>
+        <div class="movie-card">Movie 4</div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="nav-item active">Home</div>
+        <div class="nav-item">Search</div>
+        <div class="nav-item">Downloads</div>
+        <div class="nav-item">Profile</div>
+    </div>
+
+</body>
+</html>
