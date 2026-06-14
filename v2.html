@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Titu Movies - Pro Admin Panel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700;900&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background-color: #06070D;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            background: linear-gradient(145deg, #1A1C20, #06070D);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(229, 9, 20, 0.2);
+            width: 100%;
+            max-width: 650px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        h2 { text-align: center; margin-bottom: 20px; font-weight: 900; font-size: 28px; color: #E50914; letter-spacing: 2px; }
+
+        .tmdb-section {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px dashed #E50914;
+        }
+
+        .radio-group { display: flex; gap: 15px; margin-bottom: 10px; }
+        .radio-group label { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #ccc; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; color: #aaa; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+
+        input, select {
+            width: 100%; padding: 14px 15px; border-radius: 8px;
+            background-color: #0A0B10; border: 1px solid #333; color: white;
+            font-size: 14px; outline: none; transition: all 0.3s;
+        }
+        input:focus, select:focus { border-color: #E50914; box-shadow: 0 0 10px rgba(229, 9, 20, 0.3); }
+
+        .btn-fetch {
+            background-color: #333; color: white; padding: 12px; border: none;
+            border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; transition: 0.3s;
+        }
+        .btn-fetch:hover { background-color: #444; }
+
+        .btn-submit {
+            width: 100%; padding: 16px; background-color: #E50914; color: white; border: none;
+            border-radius: 8px; font-size: 16px; font-weight: 900; letter-spacing: 1px; cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+        .btn-submit:hover { background-color: #b20710; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(229, 9, 20, 0.4); }
+
+        .divider { height: 1px; background: #333; margin: 25px 0; }
+
+        #messageBox { margin-top: 20px; padding: 12px; text-align: center; border-radius: 8px; display: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <h2>TITU MOVIES PRO ADMIN</h2>
+        
+        <div class="tmdb-section">
+            <div class="radio-group">
+                <label><input type="radio" name="tmdbType" value="movie" checked> Movie</label>
+                <label><input type="radio" name="tmdbType" value="tv"> TV Series</label>
+            </div>
+            <div class="form-group">
+                <input type="number" id="tmdbId" placeholder="Enter TMDb ID (e.g., 823464)">
+            </div>
+            <button type="button" class="btn-fetch" id="fetchBtn">🔍 AUTO-FILL FROM TMDb</button>
+        </div>
+
+        <form id="addMovieForm">
+            
+            <div class="form-group">
+                <label>Content Title</label>
+                <input type="text" id="title" placeholder="Title will auto-fill..." required>
+            </div>
+
+            <div class="form-group">
+                <label>Poster Image URL</label>
+                <input type="url" id="poster_url" placeholder="Poster URL will auto-fill..." required>
+            </div>
+
+            <div class="form-group">
+                <label>Genres</label>
+                <input type="text" id="genre" placeholder="Genres will auto-fill..." required>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="form-group">
+                <label>App Category / Row Name</label>
+                <select id="category" required>
+                    <option value="Trending Now">Trending Now</option>
+                    <option value="New Releases">New Releases</option>
+                    <option value="Action Blockbusters">Action Blockbusters</option>
+                    <option value="Web Series">Web Series</option>
+                    <option value="Marathi Movies">Marathi Movies</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Server 1 Stream Link (vidsrc or .m3u8)</label>
+                <input type="url" id="activeStreamUrl" placeholder="https://vidsrc.xyz/embed/movie/..." required>
+            </div>
+
+            <div class="form-group">
+                <label>Backup Server Link (Optional)</label>
+                <input type="url" id="backupStreamUrl" placeholder="Direct .mp4 link or embed">
+            </div>
+
+            <div class="form-group">
+                <label>Direct Download Link (Optional)</label>
+                <input type="url" id="downloadUrl" placeholder="https://...">
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">PUBLISH TO APP</button>
+            <div id="messageBox"></div>
+
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("fetchBtn").addEventListener("click", async () => {
+            const tmdbId = document.getElementById("tmdbId").value;
+            const type = document.querySelector('input[name="tmdbType"]:checked').value;
+            const fetchBtn = document.getElementById("fetchBtn");
+
+            // ⚠️ APNA TMDB API KEY YAHAN DAALO ⚠️
+            const TMDB_API_KEY = "91eebcbca31321a0b6f7b54e6bf377b0"; 
+
+            if (!tmdbId) {
+                alert("Bhai, pehle TMDb ID toh daal!");
+                return;
+            }
+
+            fetchBtn.innerText = "⏳ Fetching...";
+            fetchBtn.style.backgroundColor = "#555";
+
+            try {
+                const response = await fetch(`https://api.themoviedb.org/3/${type}/${tmdbId}?api_key=${TMDB_API_KEY}&language=en-US`);
+                const data = await response.json();
+
+                if (data.success === false) {
+                    alert("TMDb ID galat hai ya API Key set nahi ki.");
+                    return;
+                }
+
+                // Auto-fill fields
+                document.getElementById("title").value = type === "movie" ? data.title : data.name;
+                document.getElementById("poster_url").value = "https://image.tmdb.org/t/p/w780" + data.poster_path;
+                
+                // Map Genres
+                const genreString = data.genres.map(g => g.name).join(", ");
+                document.getElementById("genre").value = genreString;
+
+            } catch (error) {
+                console.error("Fetch error: ", error);
+                alert("Network error. TMDb fetch fail ho gaya.");
+            } finally {
+                fetchBtn.innerText = "🔍 AUTO-FILL FROM TMDb";
+                fetchBtn.style.backgroundColor = "#333";
+            }
+        });
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // ⚠️ APNA FIREBASE CONFIG YAHAN WAPAS DAALO ⚠️
+        const firebaseConfig = {
+  apiKey: "AIzaSyBdDxTR0Rsm2cgYRr9lMZXkd0rc7VBmhZg",
+  authDomain: "titu-movies.firebaseapp.com",
+  projectId: "titu-movies",
+  storageBucket: "titu-movies.firebasestorage.app",
+  messagingSenderId: "128123629260",
+  appId: "1:128123629260:web:d60babebdf14d625571c69"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Upload to Firestore
+        document.getElementById("addMovieForm").addEventListener("submit", async (e) => {
+            e.preventDefault(); 
+            
+            const submitBtn = document.getElementById("submitBtn");
+            const msgBox = document.getElementById("messageBox");
+            
+            submitBtn.innerText = "UPLOADING TO APP...";
+            submitBtn.style.backgroundColor = "#555";
+
+            try {
+                const title = document.getElementById("title").value;
+                const poster_url = document.getElementById("poster_url").value;
+                const category = document.getElementById("category").value;
+                const genre = document.getElementById("genre").value;
+                const activeStreamUrl = document.getElementById("activeStreamUrl").value;
+                const backupStreamUrl = document.getElementById("backupStreamUrl").value;
+                const downloadUrl = document.getElementById("downloadUrl").value;
+
+                const backupArray = backupStreamUrl ? [backupStreamUrl] : [];
+
+                await addDoc(collection(db, "Movies"), {
+                    title: title,
+                    poster_url: poster_url,
+                    category: category,
+                    genre: genre,
+                    activeStreamUrl: activeStreamUrl,
+                    backupStreamUrls: backupArray,
+                    downloadUrl: downloadUrl
+                });
+
+                msgBox.style.display = "block";
+                msgBox.style.backgroundColor = "rgba(0, 255, 0, 0.2)";
+                msgBox.style.color = "#0f0";
+                msgBox.innerText = "✅ Boom! App mein live ho gaya!";
+                
+                document.getElementById("addMovieForm").reset();
+                document.getElementById("tmdbId").value = "";
+
+            } catch (error) {
+                console.error("Firebase Error: ", error);
+                msgBox.style.display = "block";
+                msgBox.style.backgroundColor = "rgba(255, 0, 0, 0.2)";
+                msgBox.style.color = "#f00";
+                msgBox.innerText = "❌ Firebase Upload Error!";
+            } finally {
+                submitBtn.innerText = "PUBLISH TO APP";
+                submitBtn.style.backgroundColor = "#E50914";
+                setTimeout(() => { msgBox.style.display = "none"; }, 4000);
+            }
+        });
+    </script>
+</body>
+</html>
