@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CIORA PROFESSIONAL — 3 in 1 Korean Glass Skin Elixir</title>
+    
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Syne:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Three.js & GSAP CDNs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <style>
+        /* LUXURY SKINCARE THEME & VARIABLES */
+        :root {
+            --bg-base: #fcfbfa;
+            --brand-gold: #d29a3a;
+            --brand-orange: #e55a00;
+            --brand-gradient: linear-gradient(135deg, #f9b115 0%, #e55a00 100%);
+            --text-dark: #1e1b18;
+            --text-muted: #70675b;
+            --glass-card: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(210, 154, 58, 0.15);
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Inter', sans-serif;
+            --font-display: 'Syne', sans-serif;
+            --shadow-luxury: 0 20px 45px rgba(229, 90, 0, 0.05), 0 5px 15px rgba(28, 26, 23, 0.03);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        html, body {
+            background-color: var(--bg-base);
+            color: var(--text-dark);
+            font-family: var(--font-sans);
+            overflow-x: hidden;
+            scroll-behavior: auto;
+        }
+
+        /* CUSTOM MODERN SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f4f1eb;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--brand-gold);
+            border-radius: 4px;
+        }
+
+        /* CURSOR TRAILING SYSTEM */
+        #luxury-cursor {
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--brand-gold);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background-color 0.3s;
+        }
+        #luxury-cursor.expand {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(249, 177, 21, 0.08);
+            border-color: var(--brand-orange);
+        }
+
+        /* THREE.JS CANVAS WRAPPER */
+        #canvas-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* SUNGLOW AMBIENT BACKGROUNDS */
+        .ambient-glow {
+            position: fixed;
+            top: -20%;
+            left: -10%;
+            width: 120vw;
+            height: 120vh;
+            background: radial-gradient(circle at 20% 30%, rgba(249, 177, 21, 0.06) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(229, 90, 0, 0.04) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(100px);
+        }
+
+        /* PRELOADER SCREEN */
+        #brand-preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-base);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .preloader-title {
+            font-family: var(--font-serif);
+            font-size: 2.8rem;
+            letter-spacing: 0.25em;
+            color: var(--text-dark);
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+        .preloader-track {
+            width: 200px;
+            height: 2px;
+            background: rgba(210, 154, 58, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .preloader-progress {
+            width: 0%;
+            height: 100%;
+            background: var(--brand-gradient);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* NAVIGATION HEADER */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 25px 6%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(210, 154, 58, 0.1);
+            background: rgba(252, 251, 250, 0.75);
+        }
+        .logo {
+            font-family: var(--font-serif);
+            font-weight: 600;
+            font-size: 1.5rem;
+            letter-spacing: 0.15em;
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: var(--brand-orange);
+        }
+
+        /* BUTTON SYSTEM */
+        .btn-luxury {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 36px;
+            border-radius: 40px;
+            background: var(--text-dark);
+            border: 1px solid var(--text-dark);
+            color: #fff;
+            font-family: var(--font-sans);
+            font-weight: 600;
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            position: relative;
+            overflow: hidden;
+            transition: background 0.4s, color 0.4s, transform 0.2s;
+            cursor: pointer;
+        }
+        .btn-luxury:hover {
+            background: transparent;
+            color: var(--text-dark);
+            box-shadow: var(--shadow-luxury);
+        }
+        .btn-luxury-outline {
+            background: transparent;
+            border: 1px solid var(--brand-gold);
+            color: var(--text-dark);
+        }
+        .btn-luxury-outline:hover {
+            background: var(--brand-gradient);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        /* SECTION CONFIGURATIONS */
+        section {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            z-index: 2;
+            padding: 120px 8%;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .text-panel {
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .badge-luxury {
+            display: inline-block;
+            align-self: flex-start;
+            border: 1px solid var(--brand-gold);
+            color: var(--brand-orange);
+            background: rgba(249, 177, 21, 0.05);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-family: var(--font-serif);
+            font-size: clamp(2.8rem, 6.5vw, 5rem);
+            font-weight: 400;
+            line-height: 1.15;
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            font-family: var(--font-serif);
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            line-height: 1.25;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+            font-weight: 300;
+            line-height: 1.75;
+            color: var(--text-muted);
+            margin-bottom: 35px;
+        }
+
+        /* HERO - SECTION 1 */
+        #hero-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100vh;
+            padding-top: 180px;
+        }
+        #hero-section .text-panel {
+            max-width: 850px;
+            align-items: center;
+        }
+
+        /* SECTION 2 & 3: FORMULA & NOURISH */
+        #formula-section {
+            justify-content: flex-end;
+        }
+        #nourish-section {
+            justify-content: flex-start;
+        }
+
+        /* SECTION 4: SHIELD SYSTEM */
+        #protect-section {
+            display: flex;
+            justify-content: center;
+            text-align: center;
+        }
+        #protect-section .text-panel {
+            max-width: 750px;
+            align-items: center;
+        }
+
+        /* SECTION 5: BENEFITS GRID */
+        #why-section {
+            flex-direction: column;
+            justify-content: center;
+        }
+        .why-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+            gap: 10%;
+            align-items: center;
+        }
+        .benefits-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .benefit-item {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            padding: 25px;
+            border-radius: 20px;
+            background: var(--glass-card);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(16px);
+            box-shadow: var(--shadow-luxury);
+        }
+        .benefit-num {
+            font-family: var(--font-serif);
+            font-size: 2rem;
+            color: var(--brand-orange);
+            line-height: 1;
+        }
+        .benefit-text h3 {
+            font-family: var(--font-serif);
+            font-weight: 400;
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+        .benefit-text p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* SECTION 6: BEFORE/AFTER SLIDER */
+        #slider-section {
+            flex-direction: column;
+            justify-content: center;
+        }
+        .slider-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+            gap: 8%;
+            align-items: center;
+        }
+        .comparison-wrapper {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(28, 26, 23, 0.08);
+            border: 1px solid var(--glass-border);
+        }
+        .comparison-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .before-texture {
+            background: linear-gradient(135deg, #ebdcd0, #d9c4b5);
+            /* Soft noise to represent dry, uneven skin texture */
+            background-image: radial-gradient(rgba(28,26,23,0.08) 1px, transparent 1px);
+            background-size: 12px 12px;
+        }
+        .after-texture {
+            background: linear-gradient(135deg, #fffcf7 0%, #f7ebd7 50%, #fff7ea 100%);
+            /* Radiant glowing skin effect */
+            box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.9);
+        }
+        .comparison-img .tag {
+            position: absolute;
+            bottom: 30px;
+            background: rgba(28, 26, 23, 0.8);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .before-texture .tag { left: 30px; }
+        .after-texture .tag { right: 30px; }
+        
+        .after-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            clip-path: inset(0 0 0 50%);
+        }
+        .slider-handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: var(--brand-orange);
+            cursor: ew-resize;
+            z-index: 10;
+        }
+        .slider-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid var(--brand-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--brand-orange);
+            box-shadow: var(--shadow-luxury);
+        }
+
+        /* SECTION 7: CUSTOMER REVIEWS */
+        #reviews-section {
+            flex-direction: column;
+            justify-content: center;
+        }
+        .reviews-container {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            width: 100%;
+            gap: 10%;
+            align-items: center;
+        }
+        .reviews-slider {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        .review-card {
+            background: var(--glass-card);
+            border: 1px solid var(--glass-border);
+            padding: 35px;
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            box-shadow: var(--shadow-luxury);
+        }
+        .review-rating {
+            color: var(--brand-gold);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        .review-card p {
+            font-family: var(--font-serif);
+            font-style: italic;
+            font-size: 1.15rem;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .review-author {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--brand-orange);
+        }
+
+        /* SECTION 8: CALL TO ACTION */
+        #cta-section {
+            height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #cta-section .text-panel {
+            max-width: 800px;
+            align-items: center;
+        }
+        #cta-section h2 {
+            font-size: clamp(2.8rem, 6.5vw, 4.5rem);
+            margin-bottom: 35px;
+        }
+
+        /* LUXURY FOOTER */
+        footer {
+            border-top: 1px solid var(--glass-border);
+            padding: 80px 8% 40px;
+            background: #f7f5f0;
+            z-index: 2;
+            position: relative;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+        .footer-brand h3 {
+            font-family: var(--font-serif);
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            letter-spacing: 0.1em;
+        }
+        .footer-links h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+        .footer-links ul {
+            list-style: none;
+        }
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .footer-links a:hover {
+            color: var(--brand-orange);
+        }
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(28, 26, 23, 0.05);
+            padding-top: 30px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 1024px) {
+            header {
+                padding: 20px 5%;
+            }
+            .nav-links {
+                display: none;
+            }
+            section {
+                padding: 100px 6%;
+                min-height: auto;
+                height: auto;
+                padding-bottom: 120px;
+            }
+            #hero-section {
+                height: 100vh;
+            }
+            #formula-section, #nourish-section {
+                justify-content: center;
+                text-align: center;
+            }
+            #formula-section .text-panel, #nourish-section .text-panel {
+                align-items: center;
+            }
+            .why-container, .slider-grid, .reviews-container {
+                grid-template-columns: 1fr;
+                gap: 50px;
+                text-align: center;
+            }
+            .comparison-wrapper {
+                height: 380px;
+            }
+            .benefit-item {
+                text-align: left;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOADING PRELOADER -->
+    <div id="brand-preloader">
+        <div class="preloader-title">CIORA</div>
+        <div class="preloader-track">
+            <div class="preloader-progress" id="preloader-progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- CANVAS WRAPPING & CURSOR -->
+    <div id="canvas-wrapper"></div>
+    <div class="ambient-glow"></div>
+    <div id="luxury-cursor"></div>
+
+    <!-- PREMIUM HEADER -->
+    <header>
+        <a href="#" class="logo">CIORA</a>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#formula-section">Formula</a></li>
+                <li><a href="#nourish-section">Glass Skin</a></li>
+                <li><a href="#protect-section">UV Protection</a></li>
+                <li><a href="#slider-section">Results</a></li>
+                <li><a href="#reviews-section">Reviews</a></li>
+            </ul>
+        </nav>
+        <a href="#cta-section" class="btn-luxury magnetic btn-luxury-outline">Shop Now</a>
+    </header>
+
+    <!-- SECTION 1: HERO -->
+    <section id="hero-section">
+        <div class="text-panel">
+            <span class="badge-luxury">SPF 50 PA++++ 3 in 1 Solution</span>
+            <h1>CIORA PROFESSIONAL</h1>
+            <p>Sunsreen + Moisturizer + Dewy Tint. Ultimate modern daily protective care designed to craft flawless, hydrated Korean Glass Skin.</p>
+            <a href="#formula-section" class="btn-luxury magnetic">Explore Product</a>
+        </div>
+    </section>
+
+    <!-- SECTION 2: PROFESSIONAL FORMULA -->
+    <section id="formula-section">
+        <div class="text-panel">
+            <span class="badge-luxury">Clean Skincare Science</span>
+            <h2>Professional Formula</h2>
+            <p>Infused with Niacinamide, Zinc Oxide, Titanium Dioxide, and Hyaluronic Acid. Offers instant, non-greasy UV ray shields while intensely replenishing deep skin cells [SCROLL TRIGGER].</p>
+            <a href="#nourish-section" class="btn-luxury btn-luxury-outline magnetic">View Ingredients</a>
+        </div>
+    </section>
+
+    <!-- SECTION 3: DEEP NOURISHMENT (KOREAN GLASS SKIN) -->
+    <section id="nourish-section">
+        <div class="text-panel">
+            <span class="badge-luxury">Hydra Glow</span>
+            <h2>Dewy Tint & Nourishment</h2>
+            <p>Unveil a bright, lightweight, satin-smooth makeup base. Seamlessly unifies skin texture with soft, glowing pigments that eliminate dullness and white cast on all skin types.</p>
+        </div>
+    </section>
+
+    <!-- SECTION 4: HEALTHY HAIR PROTECTION (SKIN SHIELD) -->
+    <section id="protect-section">
+        <div class="text-panel">
+            <span class="badge-luxury">Broad Spectrum Protection</span>
+            <h2>Healthy Skin Protection</h2>
+            <p>High UV protection (SPF 50 PA++++) preserves structural collagen, repairs cell layers, and blocks dark spots, ensuring your face remains hydrated all 365 days of the year.</p>
+        </div>
+    </section>
+
+    <!-- SECTION 5: WHY CHOOSE CIORA -->
+    <section id="why-section">
+        <div class="why-container">
+            <div></div> <!-- Three.js bottle takes this left visual grid slot -->
+            <div class="benefits-panel">
+                <span class="badge-luxury">Clinical Ethics</span>
+                <h2>Why Choose Ciora?</h2>
+                <ul class="benefits-list">
+                    <li class="benefit-item">
+                        <div class="benefit-num">01</div>
+                        <div class="benefit-text">
+                            <h3>3-in-1 Convenience</h3>
+                            <p>Sunscreeen, luxurious moisturizer, and subtle glowing dewy tint in one single bottle.</p>
+                        </div>
+                    </li>
+                    <li class="benefit-item">
+                        <div class="benefit-num">02</div>
+                        <div class="benefit-text">
+                            <h3>Korean Glass Skin Finish</h3>
+                            <p>Immediate lightweight moisture and natural tone-up gloss without heavy grease.</p>
+                        </div>
+                    </li>
+                    <li class="benefit-item">
+                        <div class="benefit-num">03</div>
+                        <div class="benefit-text">
+                            <h3>Safe & Clean Ingredients</h3>
+                            <p>100% dermatologically tested, non-comedogenic, and suited perfectly for all skin types.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: BEFORE/AFTER SLIDER -->
+    <section id="slider-section">
+        <div class="slider-grid">
+            <div class="text-panel">
+                <span class="badge-luxury">Proven Performance</span>
+                <h2>Instant Glass Skin Results</h2>
+                <p>Drag the slider divider to see the difference. Instantly smooth out coarse, dry textures and transform skin lines with a hydrated, sun-protected, radiant golden dewy flow.</p>
+            </div>
+            <div class="comparison-wrapper" id="slider-container">
+                <div class="comparison-img before-texture">
+                    <span class="tag">Dull / Dry Skin</span>
+                </div>
+                <div class="after-container" id="after-image">
+                    <div class="comparison-img after-texture">
+                        <span class="tag">Korean Glass Skin Glow</span>
+                    </div>
+                </div>
+                <div class="slider-handle" id="slider-divider">
+                    <div class="slider-button">&#8596;</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7: TESTIMONIAL REVIEWS -->
+    <section id="reviews-section">
+        <div class="reviews-container">
+            <div class="reviews-slider">
+                <div class="review-card">
+                    <div class="review-rating">★★★★★</div>
+                    <p>"Finally a sunscreen that doubles as my moisturizer! The dewy tint gives me that perfect glass skin look without feeling sticky."</p>
+                    <div class="review-author">Kavya Sharma — Beauty Creator</div>
+                </div>
+                <div class="review-card">
+                    <div class="review-rating">★★★★★</div>
+                    <p>"Absolute protection with zero white cast. It sits flawlessly under daily makeup and keeps my skin glowing all afternoon."</p>
+                    <div class="review-author">Dr. Ananya Roy — Dermatologist</div>
+                </div>
+            </div>
+            <div></div> <!-- Right grid slot allocated to floating 3D bottle -->
+        </div>
+    </section>
+
+    <!-- SECTION 8: LARGE FINAL CTA -->
+    <section id="cta-section">
+        <div class="text-panel">
+            <span class="badge-luxury">Ultimate Skin Formula</span>
+            <h2>Experience Professional Skin Care</h2>
+            <p>Give your face the premium protection and hydration it deserves. Order your bottle of Ciora SPF 50 PA++++ today.</p>
+            <a href="#" class="btn-luxury magnetic">Shop Now</a>
+        </div>
+    </section>
+
+    <!-- BRAND FOOTER -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>CIORA</h3>
+                <p>Formulating advanced bio-cosmetics and broad-spectrum sun care solutions for healthy, radiant skin architecture worldwide.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Formulations</h4>
+                <ul>
+                    <li><a href="#">SPF 50 PA++++ Elixir</a></li>
+                    <li><a href="#">Korean Glass Skin Serum</a></li>
+                    <li><a href="#">Deep Nourishing Complex</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">Dermatology Labs</a></li>
+                    <li><a href="#">Ingredient Library</a></li>
+                    <li><a href="#">Sustainability Report</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Customer Support</h4>
+                <ul>
+                    <li><a href="#">Skincare Consultations</a></li>
+                    <li><a href="#">Shipping Policy</a></li>
+                    <li><a href="#">Contact Concierge</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 CIORA PROFESSIONAL. Proudly Indian.</p>
+            <p>Designed to premium aesthetic standards.</p>
+        </div>
+    </footer>
+
+    <!-- MAIN ENGINE IMPLEMENTATION -->
+    <script>
+        // ACTIVATE GSAP SCROLLTRIGGER
+        gsap.registerPlugin(ScrollTrigger);
+
+        // PRELOADER PROGRESS BAR
+        window.addEventListener('load', () => {
+            const bar = document.getElementById('preloader-progress-bar');
+            let progress = 0;
+            const timer = setInterval(() => {
+                progress += Math.random() * 22;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(timer);
+                    gsap.to('#brand-preloader', {
+                        opacity: 0,
+                        duration: 1.2,
+                        ease: 'power3.out',
+                        onComplete: () => {
+                            document.getElementById('brand-preloader').style.display = 'none';
+                            initEntranceAnim();
+                        }
+                    });
+                }
+                bar.style.width = `${progress}%`;
+            }, 60);
+        });
+
+        function initEntranceAnim() {
+            gsap.from('#hero-section h1', { opacity: 0, y: 40, duration: 1.5, ease: 'power4.out' });
+            gsap.from('#hero-section p', { opacity: 0, y: 25, duration: 1.2, delay: 0.3, ease: 'power3.out' });
+            gsap.from('#hero-section .badge-luxury', { opacity: 0, y: 15, duration: 1, delay: 0.5, ease: 'power2.out' });
+            gsap.from('#hero-section .btn-luxury', { opacity: 0, y: 20, duration: 1, delay: 0.7, ease: 'power2.out' });
+        }
+
+        // CUSTOM LUXURY CURSOR
+        const cursor = document.getElementById('luxury-cursor');
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursor, {
+                x: e.clientX,
+                y: e.clientY,
+                duration: 0.15,
+                ease: 'power2.out'
+            });
+        });
+
+        // Hover expand classes
+        const clickables = document.querySelectorAll('a, button, .btn-luxury, .slider-handle, .benefit-item');
+        clickables.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
+        });
+
+        // MAGNETIC BUTTON SYSTEM
+        const magnetics = document.querySelectorAll('.magnetic');
+        magnetics.forEach(item => {
+            item.addEventListener('mousemove', (e) => {
+                const rect = item.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(item, {
+                    x: x * 0.35,
+                    y: y * 0.35,
+                    duration: 0.3,
+                    ease: 'power2.out'
+                });
+            });
+            item.addEventListener('mouseleave', () => {
+                gsap.to(item, {
+                    x: 0,
+                    y: 0,
+                    duration: 0.5,
+                    ease: 'elastic.out(1.1, 0.4)'
+                });
+            });
+        });
+
+        // INTERACTIVE COMPARISON SLIDER
+        const sliderContainer = document.getElementById('slider-container');
+        const afterImage = document.getElementById('after-image');
+        const sliderDivider = document.getElementById('slider-divider');
+
+        function slideAction(clientX) {
+            const rect = sliderContainer.getBoundingClientRect();
+            let x = clientX - rect.left;
+            if (x < 0) x = 0;
+            if (x > rect.width) x = rect.width;
+            const pct = (x / rect.width) * 100;
+            afterImage.style.clipPath = `inset(0 0 0 ${pct}%)`;
+            sliderDivider.style.left = `${pct}%`;
+        }
+
+        sliderContainer.addEventListener('mousemove', (e) => {
+            if (e.buttons === 1) slideAction(e.clientX);
+        });
+        sliderContainer.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) slideAction(e.touches[0].clientX);
+        });
+
+        // THREE.JS IMMERSIVE 3D SHOWCASE (EXACT BOTTLE MODEL)
+        const canvasContainer = document.getElementById('canvas-wrapper');
+        const scene = new THREE.Scene();
+        
+        // Lens camera mapping
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 7;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.4;
+        canvasContainer.appendChild(renderer.domElement);
+
+        // Light system setup (Studio level)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
+        scene.add(ambientLight);
+
+        const warmLightFront = new THREE.DirectionalLight(0xfffaee, 2.2);
+        warmLightFront.position.set(5, 5, 4);
+        scene.add(warmLightFront);
+
+        const goldRimLight = new THREE.DirectionalLight(0xf9b115, 1.8);
+        goldRimLight.position.set(-5, 4, -4);
+        scene.add(goldRimLight);
+
+        // CREATE MASTER CIORA BOTTLE AS AN INSTANTIATED GRAPHICS GROUP
+        const bottleGroup = new THREE.Group();
+        scene.add(bottleGroup);
+
+        // 1. PROCEDURAL DETAILED BOTTLE LABEL (EXACT MATCH TO REAL PHOTOS)
+        const labelCanvas = document.createElement('canvas');
+        labelCanvas.width = 1024;
+        labelCanvas.height = 2048;
+        const ctx = labelCanvas.getContext('2d');
+        
+        // Solid opaque white bottle backdrop
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 1024, 2048);
+
+        // Outline luxury brand borders
+        ctx.strokeStyle = '#f9b115';
+        ctx.lineWidth = 10;
+        ctx.strokeRect(60, 60, 904, 1928);
+
+        // Diamond Icon vector drawing (Above CIORA)
+        ctx.strokeStyle = '#d29a3a';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(512, 230);
+        ctx.lineTo(570, 265);
+        ctx.lineTo(512, 320);
+        ctx.lineTo(454, 265);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(512, 230);
+        ctx.lineTo(512, 320);
+        ctx.moveTo(454, 265);
+        ctx.lineTo(570, 265);
+        ctx.stroke();
+
+        // CIORA text
+        ctx.fillStyle = '#b8812a';
+        ctx.font = '700 130px "Playfair Display", serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('CIORA', 512, 480);
+
+        // PROFESSIONAL text
+        ctx.fillStyle = '#b8812a';
+        ctx.font = '600 42px "Inter", sans-serif';
+        ctx.letterSpacing = '14px';
+        ctx.fillText('PROFESSIONAL', 512, 560);
+
+        // SPF 50 PA++++ text (Orange-gold)
+        ctx.fillStyle = '#e55a00';
+        ctx.font = '700 52px "Inter", sans-serif';
+        ctx.fillText('SPF 50 PA ++++', 512, 700);
+
+        // 3 in 1 Solution text
+        ctx.fillStyle = '#b8812a';
+        ctx.font = 'bold 64px "Inter", sans-serif';
+        ctx.fillText('3 in 1 Solution', 512, 800);
+
+        // Divider Line 1
+        ctx.strokeStyle = '#e55a00';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(250, 860);
+        ctx.lineTo(774, 860);
+        ctx.stroke();
+
+        // Ingredients / Solutions
+        ctx.fillStyle = '#e55a00';
+        ctx.font = 'bold 44px "Inter", sans-serif';
+        ctx.fillText('Sunscreen + Moisturizer', 512, 940);
+        ctx.fillText('+ Dewy Tint', 512, 1020);
+
+        // Divider Line 2
+        ctx.beginPath();
+        ctx.moveTo(250, 1080);
+        ctx.lineTo(774, 1080);
+        ctx.stroke();
+
+        // Korean Glass Skin italic subtitle
+        ctx.fillStyle = '#b8812a';
+        ctx.font = 'italic 48px "Playfair Display", serif';
+        ctx.fillText('Korean Glass Skin', 512, 1160);
+
+        // Rounded Silver Badge (PREMIUM SKIN CARE)
+        ctx.fillStyle = '#8e8e93';
+        const rx = 212, ry = 1260, rw = 600, rh = 110, rr = 55;
+        ctx.beginPath();
+        ctx.roundRect ? ctx.roundRect(rx, ry, rw, rh, rr) : ctx.rect(rx, ry, rw, rh);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 36px "Inter", sans-serif';
+        ctx.letterSpacing = '6px';
+        ctx.fillText('PREMIUM SKIN CARE', 512, 1325);
+
+        // Small yellow tagline text
+        ctx.fillStyle = '#e55a00';
+        ctx.font = '600 26px "Inter", sans-serif';
+        ctx.letterSpacing = '1px';
+        ctx.fillText('12 Months. 365 Days. 1 Ultimate Formula', 512, 1460);
+
+        // Bottom Yellow-to-Orange Gradient Band
+        const bottomGrad = ctx.createLinearGradient(0, 1560, 0, 2048);
+        bottomGrad.addColorStop(0, '#f9b115');
+        bottomGrad.addColorStop(1, '#e55a00');
+        ctx.fillStyle = bottomGrad;
+        ctx.fillRect(60, 1560, 904, 428);
+
+        // Gradient text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 50px "Inter", sans-serif';
+        ctx.letterSpacing = '4px';
+        ctx.fillText('ALL SKIN TYPE', 512, 1730);
+        ctx.font = '600 40px "Inter", sans-serif';
+        ctx.fillText('Net Vol. 100ml', 512, 1830);
+
+        const labelTexture = new THREE.CanvasTexture(labelCanvas);
+
+        // 2. BUILD PHYSICAL 3D CYLINDER OPAQUE BOTTLE
+        const bodyGeom = new THREE.CylinderGeometry(0.74, 0.74, 2.4, 64);
+        const bottleMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.22,
+            metalness: 0.05,
+            map: labelTexture
+        });
+        const bottleBody = new THREE.Mesh(bodyGeom, bottleMaterial);
+        bottleBody.position.y = -0.5;
+        bottleGroup.add(bottleBody);
+
+        // 3. GOLD RING (NECK COLLAR) BELOW PUMP
+        const collarGeom = new THREE.CylinderGeometry(0.745, 0.745, 0.08, 64);
+        const goldMaterial = new THREE.MeshStandardMaterial({
+            color: 0xd4af37,
+            metalness: 0.95,
+            roughness: 0.15
+        });
+        const goldNeckCollar = new THREE.Mesh(collarGeom, goldMaterial);
+        goldNeckCollar.position.y = 0.73;
+        bottleGroup.add(goldNeckCollar);
+
+        // 4. INNER WHITE PUMP SYSTEM
+        const pumpMat = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            roughness: 0.3,
+            metalness: 0.1
+        });
+        const pumpBaseGeom = new THREE.CylinderGeometry(0.32, 0.32, 0.45, 32);
+        const pumpBase = new THREE.Mesh(pumpBaseGeom, pumpMat);
+        pumpBase.position.y = 1.0;
+        bottleGroup.add(pumpBase);
+
+        const pumpActuatorGeom = new THREE.CylinderGeometry(0.28, 0.28, 0.35, 32);
+        const pumpActuator = new THREE.Mesh(pumpActuatorGeom, pumpMat);
+        pumpActuator.position.set(0, 1.25, 0);
+        bottleGroup.add(pumpActuator);
+
+        const pumpSpoutGeom = new THREE.CylinderGeometry(0.05, 0.04, 0.22, 16);
+        const pumpSpout = new THREE.Mesh(pumpSpoutGeom, pumpMat);
+        pumpSpout.rotation.z = Math.PI / 2.3;
+        pumpSpout.position.set(0.18, 1.33, 0);
+        bottleGroup.add(pumpSpout);
+
+        // 5. HIGHLY REALISTIC TRANSPARENT GLASS OUTER CAP
+        const capGeom = new THREE.CylinderGeometry(0.745, 0.745, 1.35, 64);
+        const clearCapMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.3,
+            transmission: 0.92, // Glass refraction transparency
+            thickness: 0.45,
+            ior: 1.5,
+            roughness: 0.05,
+            metalness: 0.1,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.05
+        });
+        const clearCap = new THREE.Mesh(capGeom, clearCapMaterial);
+        clearCap.position.y = 1.35;
+        bottleGroup.add(clearCap);
+
+        // 6. BOTTOM SOFT GROUND SHADOW PLANE
+        const shadowGeom = new THREE.RingGeometry(0.01, 1.3, 64);
+        const shadowMat = new THREE.MeshBasicMaterial({
+            color: 0x1e1b18,
+            transparent: true,
+            opacity: 0.08,
+            side: THREE.DoubleSide
+        });
+        const shadowMesh = new THREE.Mesh(shadowGeom, shadowMat);
+        shadowMesh.rotation.x = Math.PI / 2;
+        shadowMesh.position.y = -2.8;
+        scene.add(shadowMesh);
+
+        // 7. AMBIENT GLOWING SPACE DROPS
+        const particleCount = 200;
+        const particleGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount * 3; i += 3) {
+            positions[i] = (Math.random() - 0.5) * 8;
+            positions[i+1] = (Math.random() - 0.5) * 8;
+            positions[i+2] = (Math.random() - 0.5) * 5;
+        }
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particleMat = new THREE.PointsMaterial({
+            color: 0xf9b115,
+            size: 0.05,
+            transparent: true,
+            opacity: 0.4,
+            depthWrite: false
+        });
+        const points = new THREE.Points(particleGeometry, particleMat);
+        scene.add(points);
+
+        // ANIMATED MODEL STATE MATRIX
+        const bottleState = {
+            x: 0,
+            y: 0.2,
+            z: 0,
+            rx: 0.15,
+            ry: -0.3,
+            rz: 0,
+            shadowScale: 1.0,
+            shadowOpacity: 0.08
+        };
+
+        // ADAPTIVE MOBILE LAYOUT SCALE FACTOR
+        let isMobileLayout = window.innerWidth < 1024;
+        let scaleFactorX = isMobileLayout ? 0.0 : 1.0;
+
+        // GSAP COORDINATED TIMELINES ON SCROLL TRIGGER
+        // Hero -> Section 2 (Moves to Left)
+        gsap.to(bottleState, {
+            scrollTrigger: {
+                trigger: '#formula-section',
+                start: 'top bottom',
+                end: 'top top',
+                scrub: 1.2
+            },
+            x: -1.8 * scaleFactorX,
+            y: -0.1,
+            z: 0,
+            rx: 0.2,
+            ry: 0.7,
+            rz: -0.1,
+            shadowScale: 0.85
+        });
+
+        // Section 2 -> Section 3 (Moves to Right)
+        gsap.to(bottleState, {
+            scrollTrigger: {
+                trigger: '#nourish-section',
+                start: 'top bottom',
+                end: 'top top',
+                scrub: 1.2
+            },
+            x: 1.8 * scaleFactorX,
+            y: -0.2,
+            rx: -0.1,
+            ry: -0.7,
+            rz: 0.1,
+            shadowScale: 0.95
+        });
+
+        // Section 3 -> Section 4 (Zoom details)
+        gsap.to(bottleState, {
+            scrollTrigger: {
+                trigger: '#protect-section',
+                start: 'top bottom',
+                end: 'top top',
+                scrub: 1.2
+            },
+            x: 0,
+            y: 0.1,
+            z: 1.3,
+            rx: 0.25,
+            ry: 0,
+            rz: 0,
+            shadowScale: 0.75,
+            shadowOpacity: 0.04
+        });
+
+        // Section 4 -> Section 5 (Tumbles gracefully displaying all label features)
+        gsap.to(bottleState, {
+            scrollTrigger: {
+                trigger: '#why-section',
+                start: 'top bottom',
+                end: 'top top',
+                scrub: 1.2
+            },
+            x: -1.7 * scaleFactorX,
+            y: -0.1,
+            z: 0.1,
+            rx: 0.1,
+            ry: Math.PI * 2 + 0.3,
+            rz: 0.1,
+            shadowScale: 1.1,
+            shadowOpacity: 0.08
+        });
+
+        // Section 5 -> Section 6 (Results Slider side framing)
+        gsap.to(bottleState, {
+            scrollTrigger: {
+                trigger: '#slider-section',
+                start: 'top bottom',
+                end: 'top top',
+                scrub: 1.2
+            },
+            x: -1.9 * scaleFactorX,
+            y: 0,
+            z: -0.3,
+            rx: 0.15,
+            ry: Math.PI * 2.3,
+            rz: 0,
+            shadowScale: 1.0
+        });
+
+        // Section 6 -> Section 7 (Review placing)
+        gsap.to(bottleState, {
+            scrollTrigger: {
+                trigger: '#reviews-section',
+                start: 'top bottom',
+                end: 'top top',
+                scrub: 1.2
+            },
+            x: 1.8 * scaleFactorX,
+            y: -0.2,
+            z: 0.2,
+            rx: 0.25,
+            ry: Math.PI * 1.7,
+            rz: -0.1,
+            shadowScale: 0.9
+        });
+
+        // Section 7 -> Section 8 (CTA Center Final)
+        gsap.to(bottleState, {
+            scrollTrigger: {
+                trigger: '#cta-section',
+                start: 'top bottom',
+                end: 'top top',
+                scrub: 1.2
+            },
+            x: 0,
+            y: -0.3,
+            z: 1.0,
+            rx: 0.1,
+            ry: Math.PI * 2,
+            rz: 0,
+            shadowScale: 1.2,
+            shadowOpacity: 0.06
+        });
+
+        // CURSOR DETECTORS FOR DEVIATION MOTION (PARALLAX)
+        const mouse = { x: 0, y: 0 };
+        document.addEventListener('mousemove', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // CHRONO CLOCK & LERP RENDER SYSTEM
+        const clock = new THREE.Clock();
+
+        function renderTick() {
+            const time = clock.getElapsedTime();
+
+            // Smooth floating sine displacement curves
+            const floatY = Math.sin(time * 1.5) * 0.11;
+            const floatX = Math.cos(time * 1.0) * 0.04;
+
+            // Parallax movement based on mouse
+            const devX = mouse.x * 0.25;
+            const devY = mouse.y * 0.18;
+
+            // Smoothly LERP bottle positions
+            bottleGroup.position.x += ((bottleState.x) + floatX + devX - bottleGroup.position.x) * 0.08;
+            bottleGroup.position.y += ((bottleState.y) + floatY + devY - bottleGroup.position.y) * 0.08;
+            bottleGroup.position.z += (bottleState.z - bottleGroup.position.z) * 0.08;
+
+            // Dynamic rotation LERP
+            const targetRotX = bottleState.rx + (mouse.y * 0.08);
+            const targetRotY = bottleState.ry + (mouse.x * 0.12);
+            
+            bottleGroup.rotation.x += (targetRotX - bottleGroup.rotation.x) * 0.08;
+            bottleGroup.rotation.y += (targetRotY - bottleGroup.rotation.y) * 0.08;
+            bottleGroup.rotation.z += (bottleState.rz - bottleGroup.rotation.z) * 0.08;
+
+            // Scale and opacity adjustments of shadow plane
+            shadowMesh.scale.setScalar(bottleState.shadowScale * (1 - Math.abs(floatY) * 0.12));
+            shadowMesh.material.opacity = bottleState.shadowOpacity / (1 + Math.abs(floatY) * 0.2);
+
+            // Floating cosmetic drops rotation
+            points.rotation.y = time * 0.03;
+
+            renderer.render(scene, camera);
+            window.requestAnimationFrame(renderTick);
+        }
+
+        renderTick();
+
+        // WINDOW ADJUSTMENTS
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            isMobileLayout = window.innerWidth < 1024;
+            scaleFactorX = isMobileLayout ? 0.0 : 1.0;
+        });
+
+    </script>
+</body>
+</html>
